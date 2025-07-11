@@ -187,7 +187,19 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=InlineKeyboardMarkup(buttons))
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(tr(update.effective_user.id, 'help'), parse_mode="Markdown")
+    uid = update.effective_user.id
+    lang = user_langs.get(uid, 'en')
+
+    if uid == ADMIN_ID:
+        help_text = TEXT[lang]['help']
+    else:
+        help_text = TEXT[lang]['help']
+        help_text = "\n".join(
+            line for line in help_text.splitlines()
+            if not any(cmd in line for cmd in ["/stats", "/broadcast"])
+        )
+
+    await update.message.reply_text(help_text, parse_mode="Markdown")
 
 async def set_mode(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
